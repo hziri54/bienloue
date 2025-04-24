@@ -2,10 +2,24 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 async function main() {
-  const logements = await prisma.logement.findMany();
-  console.log(logements);
+  // Création d'un utilisateur
+  const user = await prisma.user.create({
+    data: {
+      email: 'ziri@example.com',
+      name: 'Ziri',
+    },
+  });
+
+  console.log('Utilisateur créé :', user);
+
+  // Lecture des utilisateurs
+  const users = await prisma.user.findMany();
+  console.log('Liste des utilisateurs :', users);
 }
 
 main()
-  .catch(e => console.error(e))
-  .finally(() => prisma.$disconnect());
+  .then(() => prisma.$disconnect())
+  .catch((e) => {
+    console.error(e);
+    return prisma.$disconnect();
+  });
