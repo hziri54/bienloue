@@ -1,14 +1,26 @@
-const express = require('express');
-const app = express();
-const cors = require('cors');
-const userRoutes = require('./routes/userRoutes');
+import { useEffect, useState } from 'react';
 
-app.use(cors());
-app.use(express.json());
+const Home = () => {
+  const [properties, setProperties] = useState([]);
 
-app.use('/api/users', userRoutes);
+  useEffect(() => {
+    // Simuler la récupération des biens non meublés
+    fetch('/api/properties')
+      .then((response) => response.json())
+      .then((data) => setProperties(data))
+      .catch((error) => console.error('Erreur:', error));
+  }, []);
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`🚀 Serveur lancé sur http://localhost:${PORT}`);
-});
+  return (
+    <div>
+      <h1>Biens à louer non meublés</h1>
+      <ul>
+        {properties.map((property) => (
+          <li key={property.id}>{property.name}</li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+export default Home;
