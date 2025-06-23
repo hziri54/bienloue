@@ -16,9 +16,11 @@
     "sequelize": "^6.37.7"
   },
   "devDependencies": {
+    "@types/react": "19.1.8",
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.3",
     "prisma": "^6.9.0",
-    "tailwindcss": "^4.1.4"
+    "tailwindcss": "^4.1.4",
+    "typescript": "5.8.3"
   }
 }
