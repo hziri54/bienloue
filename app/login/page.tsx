@@ -1,69 +1,60 @@
-'use client'
+"use client"
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { signIn } from "next-auth/react"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [message, setMessage] = useState('')
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [error, setError] = useState("")
   const router = useRouter()
 
-  const handleLogin = async (e: React.FormEvent) => {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    setError("")
 
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
+    const res = await signIn("credentials", {
+      redirect: false,
+      email,
+      password,
     })
 
-    const data = await res.json()
-
-    if (res.ok) {
-      localStorage.setItem('role', data.user.role) // 🔐 On garde le rôle
-      router.push('/dashboard')
+    if (res?.error) {
+      setError(res.error)
     } else {
-      setMessage(`❌ ${data.error || 'Erreur lors de la connexion'}`)
+      router.push("/")
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-6 text-center text-blue-700">Connexion à BienLoué</h1>
-        <form onSubmit={handleLogin} className="space-y-4">
-          <input
-            type="email"
-            placeholder="Adresse email"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            className="w-full border border-gray-300 px-4 py-2 rounded"
-            required
-          />
-          <input
-            type="password"
-            placeholder="Mot de passe"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            className="w-full border border-gray-300 px-4 py-2 rounded"
-            required
-          />
-          <button
-            type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded transition"
-          >
-            Se connecter
-          </button>
-        </form>
-
-        {message && <p className="mt-4 text-center text-sm text-red-600">{message}</p>}
-
-        <p className="mt-6 text-center text-sm">
-          Pas encore de compte ?{' '}
-          <a href="/register" className="text-blue-600 hover:underline">Créer un compte</a>
-        </p>
-      </div>
+    <div className="max-w-md mx-auto p-6">
+      <h1 className="text-2xl font-bold mb-4">Connexion</h1>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <input
+          type="email"
+          placeholder="Email"
+          className="p-3 border border-gray-300 rounded"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <input
+          type="password"
+          placeholder="Mot de passe"
+          className="p-3 border border-gray-300 rounded"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        {error && <p className="text-red-600">{error}</p>}
+        <button
+          type="submit"
+          className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+        >
+          Se connecter
+        </button>
+      </form>
     </div>
   )
 }

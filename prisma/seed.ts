@@ -1,43 +1,46 @@
-// prisma/seed.ts
-import { PrismaClient } from '@prisma/client';
-import * as bcrypt from 'bcryptjs';
+import { PrismaClient } from '@prisma/client'
+import bcrypt from 'bcryptjs'
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient()
 
 async function main() {
-  const password = await bcrypt.hash('test123', 10);
+  // Hasher le mot de passe
+  const password = await bcrypt.hash('test123', 10)
 
+  // Créer un utilisateur test
   await prisma.user.create({
     data: {
-      email: 'test@test.com',
-      password,
-      role: 'landlord',
+      email: 'yala@test.fr',
+      password: password,
+      role: 'tenant', // ou 'landlord'
     },
-  });
+  })
 
+  // Créer un bien test
   await prisma.property.create({
     data: {
-      title: 'Studio lumineux',
-      description: 'Studio bien situé proche tram',
-      price: 550,
-      address: '12 rue des Lilas',
-      city: 'Nancy',
+      title: 'Appartement T2 à louer',
+      description: 'Bel appartement lumineux, proche commodités.',
+      price: 650,
+      address: '123 Rue de la Paix',
+      city: 'Paris',
       images: {
         create: [
-          { url: 'https://via.placeholder.com/600x400?text=Studio+Nancy' },
+          { url: 'https://via.placeholder.com/600x400?text=Image+1' },
+          { url: 'https://via.placeholder.com/600x400?text=Image+2' },
         ],
       },
     },
-  });
+  })
 
-  console.log('✅ Base de données seedée avec succès');
+  console.log('Seed terminé !')
 }
 
 main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
+  .catch(e => {
+    console.error(e)
+    process.exit(1)
   })
   .finally(async () => {
-    await prisma.$disconnect();
-  });
+    await prisma.$disconnect()
+  })
