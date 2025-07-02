@@ -1,40 +1,60 @@
-import { PrismaClient } from '@prisma/client'
-import Image from 'next/image'
+'use client'
 
-const prisma = new PrismaClient()
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
-export default async function PropertyPage({ params }: { params: { id: string } }) {
-  const property = await prisma.property.findUnique({
-    where: { id: parseInt(params.id) },
-    include: { images: true }
-  })
+export default function ApplyPage({ params }: { params: { id: string } }) {
+  const [message, setMessage] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
 
-  if (!property) {
-    return <div className="text-center text-red-500">Bien non trouvé.</div>
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
+
+    try {
+      const res = await fetch('/api/apply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          propertyId: parseInt(params.id),
+          message,
+        }),
+      })
+
+      if (!res.ok) throw new Error('Erreur serveur')
+
+      router.push('/') // redirige à l’accueil après succès
+    } catch (err) {
+      setError('Erreur lors de la soumission')
+      setLoading(false)
+    }
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-semibold mb-4">{property.title}</h1>
-
-      <div className="w-full h-64 relative mb-4">
-        {property.images.length > 0 ? (
-          <Image
-            src={property.images[0].url}
-            alt={property.title}
-            fill
-            className="object-cover rounded-md"
-          />
-        ) : (
-          <div className="w-full h-full bg-gray-200 flex items-center justify-center rounded-md">
-            Pas d’image
-          </div>
-        )}
-      </div>
-
-      <p className="text-gray-700 mb-2">{property.description}</p>
-      <p className="font-semibold">Adresse : {property.address}, {property.city}</p>
-      <p className="text-lg font-bold mt-4">{property.price} € / mois</p>
+    <div className="max-w-xl mx-auto p-6">
+      <h1 className="text-2xl font-bold mb-6">Postuler à ce bien</h1>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <textarea
+          className="p-3 border border-gray-300 rounded resize-none"
+          rows={6}
+          placeholder="Votre message à propos de la candidature..."
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          required
+          disabled={loading}
+        />
+        {error && <p className="text-red-600">{error}</p>}
+        <button
+          type="submit"
+          disabled={loading}
+          className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition disabled:opacity-50"
+        >
+          {loading ? 'Envoi en cours...' : 'Envoyer ma candidature'}
+        </button>
+      </form>
     </div>
   )
 }
