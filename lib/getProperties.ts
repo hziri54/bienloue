@@ -1,12 +1,9 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma'
 
 export async function getProperties() {
-  const properties = await prisma.property.findMany({
-    orderBy: {
-      createdAt: 'desc',
-    },
-  });
-  return properties;
+  return await prisma.property.findMany({
+    include: {
+      images: true
+    }
+  })
 }
