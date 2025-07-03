@@ -1,60 +1,62 @@
-'use client'
+import { PrismaClient } from '@prisma/client'
+import Image from 'next/image'
+import ApplyForm from '@/components/ApplyForm'
+import { getServerSession } from 'next-auth/next'
+import { authOptions } from '../../api/auth/[...nextauth]/route'  // adapte selon ton chemin
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+const prisma = new PrismaClient()
 
-export default function ApplyPage({ params }: { params: { id: string } }) {
-  const [message, setMessage] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const router = useRouter()
+interface PropertyDetailProps {
+  params: { id: string }
+}
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError(null)
+export default async function PropertyDetail({ params }: PropertyDetailProps) {
+  const propertyId = parseInt(params.id)
+  const property = await prisma.property.findUnique({
+    where: { id: propertyId },
+    include: { images: true },
+  })
 
-    try {
-      const res = await fetch('/api/apply', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          propertyId: parseInt(params.id),
-          message,
-        }),
-      })
-
-      if (!res.ok) throw new Error('Erreur serveur')
-
-      router.push('/') // redirige à l’accueil après succès
-    } catch (err) {
-      setError('Erreur lors de la soumission')
-      setLoading(false)
-    }
+  if (!property) {
+    return <div className="p-6 text-center text-red-500">Bien introuvable.</div>
   }
 
+  const session = await getServerSession(authOptions)
+
   return (
-    <div className="max-w-xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">Postuler à ce bien</h1>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <textarea
-          className="p-3 border border-gray-300 rounded resize-none"
-          rows={6}
-          placeholder="Votre message à propos de la candidature..."
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          required
-          disabled={loading}
-        />
-        {error && <p className="text-red-600">{error}</p>}
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition disabled:opacity-50"
-        >
-          {loading ? 'Envoi en cours...' : 'Envoyer ma candidature'}
-        </button>
-      </form>
+    <div className="max-w-4xl mx-auto p-6 space-y-6">
+      <h1 className="text-3xl font-bold">{property.title}</h1>
+      <p className="text-gray-600">{property.city}, {property.address}</p>
+
+      {property.images.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {property.images.map((img) => (
+            <Image
+              key={img.id}
+              src={img.url}
+              alt="Image bien"
+              width={600}
+              height={400}
+              className="rounded-lg object-cover"
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="text-gray-400">Aucune image disponible</div>
+      )}
+
+      <div>
+        <p className="text-lg">{property.description}</p>
+        <p className="text-xl font-semibold mt-4">{property.price} € / mois</p>
+      </div>
+
+      {session ? (
+        <ApplyForm propertyId={property.id} />
+      ) : (
+        <p className="text-center text-red-600 font-semibold mt-6">
+          Vous devez être connecté pour déposer une candidature.
+        </p>
+      )}
     </div>
   )
 }

@@ -4,13 +4,14 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 export default function LoginPage() {
+  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [message, setMessage] = useState('')
-  const router = useRouter()
 
-  const handleLogin = async (e: React.FormEvent) => {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    setMessage('Connexion en cours...')
 
     const res = await fetch('/api/auth/login', {
       method: 'POST',
@@ -19,9 +20,10 @@ export default function LoginPage() {
     })
 
     const data = await res.json()
+    console.log('Login response:', data)
 
-    if (res.ok) {
-      localStorage.setItem('role', data.user.role) // 🔐 On garde le rôle
+    if (res.ok && data.user) {
+      localStorage.setItem('role', data.user.role)
       router.push('/dashboard')
     } else {
       setMessage(`❌ ${data.error || 'Erreur lors de la connexion'}`)
@@ -29,41 +31,30 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-6 text-center text-blue-700">Connexion à BienLoué</h1>
-        <form onSubmit={handleLogin} className="space-y-4">
-          <input
-            type="email"
-            placeholder="Adresse email"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            className="w-full border border-gray-300 px-4 py-2 rounded"
-            required
-          />
-          <input
-            type="password"
-            placeholder="Mot de passe"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            className="w-full border border-gray-300 px-4 py-2 rounded"
-            required
-          />
-          <button
-            type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded transition"
-          >
-            Se connecter
-          </button>
-        </form>
-
-        {message && <p className="mt-4 text-center text-sm text-red-600">{message}</p>}
-
-        <p className="mt-6 text-center text-sm">
-          Pas encore de compte ?{' '}
-          <a href="/register" className="text-blue-600 hover:underline">Créer un compte</a>
-        </p>
-      </div>
-    </div>
+    <form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-4 p-6">
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        required
+        onChange={e => setEmail(e.target.value)}
+        className="w-full border rounded p-2"
+      />
+      <input
+        type="password"
+        placeholder="Mot de passe"
+        value={password}
+        required
+        onChange={e => setPassword(e.target.value)}
+        className="w-full border rounded p-2"
+      />
+      <button
+        type="submit"
+        className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
+      >
+        Se connecter
+      </button>
+      {message && <p>{message}</p>}
+    </form>
   )
 }

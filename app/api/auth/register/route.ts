@@ -1,30 +1,39 @@
-import prisma from '@/lib/prisma'
+import { NextRequest, NextResponse } from 'next/server'
+import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 
-export async function POST(req: Request) {
-  try {
-    const { email, password, role } = await req.json()
+const prisma = new PrismaClient()
 
-    const existingUser = await prisma.user.findUnique({ where: { email } })
-    if (existingUser) {
-      return new Response(JSON.stringify({ error: 'Utilisateur déjà existant' }), { status: 400 })
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json()
+    const { email, password } = body
+
+    if (!email || !password) {
+      return NextResponse.json({ error: 'Email et mot de passe requis' }, { status: 400 })
     }
 
+    // Vérifier si l'utilisateur existe déjà
+    const existingUser = await prisma.user.findUnique({ where: { email } })
+    if (existingUser) {
+      return NextResponse.json({ error: 'Cet email est déjà utilisé' }, { status: 400 })
+    }
+
+    // Hasher le mot de passe
     const hashedPassword = await bcrypt.hash(password, 10)
 
-    await prisma.user.create({
+    // Créer l'utilisateur
+    const user = await prisma.user.create({
       data: {
         email,
         password: hashedPassword,
-        role: role?.toUpperCase() === 'LANDLORD' ? 'LANDLORD' : 'TENANT',
+        role: 'tenant', // rôle par défaut
       },
     })
 
-    return new Response(JSON.stringify({ message: 'Inscription réussie' }), {
-      status: 201,
-      headers: { 'Content-Type': 'application/json' },
-    })
+    return NextResponse.json({ message: 'Utilisateur créé avec succès', userId: user.id }, { status: 201 })
   } catch (error) {
-    return new Response(JSON.stringify({ error: 'Erreur serveur' }), { status: 500 })
+    console.error(error)
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
 }
