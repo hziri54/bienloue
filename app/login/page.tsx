@@ -2,31 +2,29 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { signIn } from 'next-auth/react'
 
 export default function LoginPage() {
-  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [message, setMessage] = useState('')
+  const router = useRouter()
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setMessage('Connexion en cours...')
 
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
+    const res = await signIn('credentials', {
+      redirect: false,
+      email,
+      password,
     })
 
-    const data = await res.json()
-    console.log('Login response:', data)
-
-    if (res.ok && data.user) {
-      localStorage.setItem('role', data.user.role)
-      router.push('/dashboard')
+    if (res?.ok) {
+      setMessage('Connecté !')
+      router.push('/properties') // redirection après connexion
     } else {
-      setMessage(`❌ ${data.error || 'Erreur lors de la connexion'}`)
+      setMessage('Erreur : ' + (res?.error || 'Échec de la connexion'))
     }
   }
 
@@ -37,7 +35,7 @@ export default function LoginPage() {
         placeholder="Email"
         value={email}
         required
-        onChange={e => setEmail(e.target.value)}
+        onChange={(e) => setEmail(e.target.value)}
         className="w-full border rounded p-2"
       />
       <input
@@ -45,13 +43,10 @@ export default function LoginPage() {
         placeholder="Mot de passe"
         value={password}
         required
-        onChange={e => setPassword(e.target.value)}
+        onChange={(e) => setPassword(e.target.value)}
         className="w-full border rounded p-2"
       />
-      <button
-        type="submit"
-        className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
-      >
+      <button type="submit" className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">
         Se connecter
       </button>
       {message && <p>{message}</p>}

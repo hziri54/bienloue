@@ -13,31 +13,22 @@ export const authOptions = {
       name: "Credentials",
       credentials: {
         email: { label: "Email", type: "email" },
-        password: { label: "Mot de passe", type: "password" }
+        password: { label: "Mot de passe", type: "password" },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials.password) {
           throw new Error("Email et mot de passe requis")
         }
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
-        })
-
+        const user = await prisma.user.findUnique({ where: { email: credentials.email } })
         if (!user) throw new Error("Utilisateur introuvable")
 
-        const isValid = await bcrypt.compare(credentials.password, user.password)
+        const valid = await bcrypt.compare(credentials.password, user.password)
+        if (!valid) throw new Error("Mot de passe incorrect")
 
-        if (!isValid) throw new Error("Mot de passe incorrect")
-
-        return {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-        }
-      }
-    })
+        return { id: user.id, email: user.email, role: user.role }
+      },
+    }),
   ],
   session: { strategy: "jwt" },
   pages: { signIn: "/login" },
@@ -55,8 +46,8 @@ export const authOptions = {
         session.user.role = token.role
       }
       return session
-    }
-  }
+    },
+  },
 }
 
 const handler = NextAuth(authOptions)

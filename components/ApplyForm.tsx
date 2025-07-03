@@ -42,97 +42,73 @@ export default function ApplyForm({ propertyId }: ApplyFormProps) {
         message: '',
       })
     } else {
-      setStatus('Erreur lors de l’envoi. Veuillez réessayer.')
+      const data = await res.json()
+      setStatus(`Erreur : ${data.error || 'Veuillez réessayer.'}`)
     }
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 mt-6 max-w-md">
-      <div>
-        <label htmlFor="firstName" className="block mb-1 font-semibold">Prénom</label>
-        <input
-          type="text"
-          id="firstName"
-          name="firstName"
-          value={formData.firstName}
-          onChange={handleChange}
-          required
-          className="w-full border rounded p-2"
-        />
-      </div>
-
-      <div>
-        <label htmlFor="lastName" className="block mb-1 font-semibold">Nom</label>
-        <input
-          type="text"
-          id="lastName"
-          name="lastName"
-          value={formData.lastName}
-          onChange={handleChange}
-          required
-          className="w-full border rounded p-2"
-        />
-      </div>
-
-      <div>
-        <label htmlFor="email" className="block mb-1 font-semibold">Email</label>
-        <input
-          type="email"
-          id="email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          required
-          className="w-full border rounded p-2"
-        />
-      </div>
-
-      <div>
-        <label htmlFor="phone" className="block mb-1 font-semibold">Numéro de téléphone</label>
-        <input
-          type="tel"
-          id="phone"
-          name="phone"
-          value={formData.phone}
-          onChange={handleChange}
-          required
-          className="w-full border rounded p-2"
-        />
-      </div>
-
-      <div>
-        <label htmlFor="address" className="block mb-1 font-semibold">Adresse</label>
-        <input
-          type="text"
-          id="address"
-          name="address"
-          value={formData.address}
-          onChange={handleChange}
-          required
-          className="w-full border rounded p-2"
-        />
-      </div>
-
-      <div>
-        <label htmlFor="message" className="block mb-1 font-semibold">Message de candidature</label>
-        <textarea
-          id="message"
-          name="message"
-          value={formData.message}
-          onChange={handleChange}
-          required
-          rows={4}
-          className="w-full border rounded p-2"
-        />
-      </div>
-
+      <input
+        type="text"
+        name="firstName"
+        placeholder="Prénom"
+        value={formData.firstName}
+        onChange={handleChange}
+        required
+        className="w-full border rounded p-2"
+      />
+      <input
+        type="text"
+        name="lastName"
+        placeholder="Nom"
+        value={formData.lastName}
+        onChange={handleChange}
+        required
+        className="w-full border rounded p-2"
+      />
+      <input
+        type="email"
+        name="email"
+        placeholder="Email"
+        value={formData.email}
+        onChange={handleChange}
+        required
+        className="w-full border rounded p-2"
+      />
+      <input
+        type="tel"
+        name="phone"
+        placeholder="Numéro de téléphone"
+        value={formData.phone}
+        onChange={handleChange}
+        required
+        className="w-full border rounded p-2"
+      />
+      <input
+        type="text"
+        name="address"
+        placeholder="Adresse"
+        value={formData.address}
+        onChange={handleChange}
+        required
+        className="w-full border rounded p-2"
+      />
+      <textarea
+        name="message"
+        placeholder="Message de candidature"
+        value={formData.message}
+        onChange={handleChange}
+        rows={4}
+        required
+        className="w-full border rounded p-2"
+      />
       <button
         type="submit"
         className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
       >
         Postuler
       </button>
-
       {status && <p className="mt-2">{status}</p>}
     </form>
   )
