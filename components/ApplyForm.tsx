@@ -42,73 +42,54 @@ export default function ApplyForm({ propertyId }: ApplyFormProps) {
         message: '',
       })
     } else {
-      const data = await res.json()
-      setStatus(`Erreur : ${data.error || 'Veuillez réessayer.'}`)
+      setStatus('Erreur lors de l’envoi. Veuillez réessayer.')
     }
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 mt-6 max-w-md">
-      <input
-        type="text"
-        name="firstName"
-        placeholder="Prénom"
-        value={formData.firstName}
-        onChange={handleChange}
-        required
-        className="w-full border rounded p-2"
-      />
-      <input
-        type="text"
-        name="lastName"
-        placeholder="Nom"
-        value={formData.lastName}
-        onChange={handleChange}
-        required
-        className="w-full border rounded p-2"
-      />
-      <input
-        type="email"
-        name="email"
-        placeholder="Email"
-        value={formData.email}
-        onChange={handleChange}
-        required
-        className="w-full border rounded p-2"
-      />
-      <input
-        type="tel"
-        name="phone"
-        placeholder="Numéro de téléphone"
-        value={formData.phone}
-        onChange={handleChange}
-        required
-        className="w-full border rounded p-2"
-      />
-      <input
-        type="text"
-        name="address"
-        placeholder="Adresse"
-        value={formData.address}
-        onChange={handleChange}
-        required
-        className="w-full border rounded p-2"
-      />
-      <textarea
-        name="message"
-        placeholder="Message de candidature"
-        value={formData.message}
-        onChange={handleChange}
-        rows={4}
-        required
-        className="w-full border rounded p-2"
-      />
+      {/* Tous les champs demandés */}
+      {['firstName', 'lastName', 'email', 'phone', 'address'].map((field) => (
+        <div key={field}>
+          <label className="block mb-1 font-semibold" htmlFor={field}>
+            {field === 'firstName' ? 'Prénom' :
+             field === 'lastName' ? 'Nom' :
+             field === 'email' ? 'Email' :
+             field === 'phone' ? 'Numéro de téléphone' :
+             'Adresse'}
+          </label>
+          <input
+            type={field === 'email' ? 'email' : 'text'}
+            id={field}
+            name={field}
+            value={formData[field as keyof typeof formData]}
+            onChange={handleChange}
+            required
+            className="w-full border rounded p-2"
+          />
+        </div>
+      ))}
+
+      <div>
+        <label className="block mb-1 font-semibold" htmlFor="message">Message de candidature</label>
+        <textarea
+          id="message"
+          name="message"
+          value={formData.message}
+          onChange={handleChange}
+          rows={4}
+          className="w-full border rounded p-2"
+          required
+        />
+      </div>
+
       <button
         type="submit"
         className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
       >
         Postuler
       </button>
+
       {status && <p className="mt-2">{status}</p>}
     </form>
   )

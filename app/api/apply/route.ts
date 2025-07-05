@@ -1,36 +1,31 @@
-// app/api/apply/route.ts
-import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+import ApplyForm from "@/components/ApplyForm"
 import { PrismaClient } from "@prisma/client"
 
 const prisma = new PrismaClient()
 
-export async function POST(request: NextRequest) {
+export default async function PropertyDetail({ params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions)
-  if (!session?.user) {
-    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
+
+  const property = await prisma.property.findUnique({
+    where: { id: Number(params.id) },
+  })
+
+  if (!property) {
+    return <div>Bien introuvable</div>
   }
 
-  const body = await request.json()
-  const { propertyId, firstName, lastName, email, phone, address, message } = body
+  return (
+    <div>
+      <h1>{property.title}</h1>
+      <p>{property.description}</p>
 
-  try {
-    await prisma.application.create({
-      data: {
-        propertyId,
-        userId: session.user.id,
-        firstName,
-        lastName,
-        email,
-        phone,
-        address,
-        message,
-      },
-    })
-    return NextResponse.json({ message: "Candidature envoyée" }, { status: 201 })
-  } catch (error) {
-    console.error(error)
-    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 })
-  }
+      {session ? (
+        <ApplyForm propertyId={property.id} />
+      ) : (
+        <p>Vous devez être connecté pour déposer une candidature. <a href="/login" className="text-blue-600 underline">Connectez-vous ici</a></p>
+      )}
+    </div>
+  )
 }

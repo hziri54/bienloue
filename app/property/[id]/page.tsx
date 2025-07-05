@@ -1,34 +1,31 @@
-import { PrismaClient } from '@prisma/client'
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
-import ApplyForm from '@/components/ApplyForm'
+import ApplyForm from "@/components/ApplyForm"
+import { PrismaClient } from "@prisma/client"
 
 const prisma = new PrismaClient()
 
-export default async function PropertyPage({ params }: { params: { id: string } }) {
+export default async function PropertyDetail({ params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions)
-  const propertyId = parseInt(params.id)
-  
+
   const property = await prisma.property.findUnique({
-    where: { id: propertyId }
+    where: { id: Number(params.id) },
   })
 
   if (!property) {
-    return <div>Bien introuvable.</div>
-  }
-
-  if (!session?.user) {
-    return <div>Vous devez être connecté pour déposer une candidature.</div>
+    return <div>Bien introuvable</div>
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-bold">{property.title}</h1>
-      <p>{property.city}, {property.address}</p>
-      <p className="mt-4">{property.description}</p>
-      <p className="mt-2 font-semibold">{property.price} € / mois</p>
+    <div>
+      <h1>{property.title}</h1>
+      <p>{property.description}</p>
 
-      <ApplyForm propertyId={propertyId} />
+      {session ? (
+        <ApplyForm propertyId={property.id} />
+      ) : (
+        <p>Vous devez être connecté pour déposer une candidature. <a href="/login" className="text-blue-600 underline">Connectez-vous ici</a></p>
+      )}
     </div>
   )
 }
