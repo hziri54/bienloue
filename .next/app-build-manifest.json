@@ -6,15 +6,15 @@
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
-    "/properties/page": [
+    "/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/properties/page.js"
+      "static/chunks/app/page.js"
     ],
-    "/login/page": [
+    "/admin/applications/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/login/page.js"
+      "static/chunks/app/admin/applications/page.js"
     ],
     "/dashboard/page": [
       "static/chunks/webpack.js",
@@ -26,10 +26,25 @@
       "static/chunks/main-app.js",
       "static/chunks/app/admin/page.js"
     ],
-    "/page": [
+    "/property/[id]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/page.js"
+      "static/chunks/app/property/[id]/page.js"
+    ],
+    "/register/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/register/page.js"
+    ],
+    "/login/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/login/page.js"
+    ],
+    "/properties/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/properties/page.js"
     ]
   }
 }

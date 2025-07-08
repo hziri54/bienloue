@@ -1,19 +1,24 @@
-import { PrismaClient } from '@prisma/client'
-import { NextResponse } from 'next/server'
+import { NextResponse } from "next/server"
+import { prisma } from "@/lib/prisma"
 
-const prisma = new PrismaClient()
-
-export async function GET() {
+export async function PATCH(request: Request, { params }: { params: { id: string } }) {
   try {
-    const applications = await prisma.application.findMany({
-      include: {
-        property: true,
-        user: true,
-      },
+    const id = parseInt(params.id)
+    const { status } = await request.json()
+
+    // Valide le statut
+    if (!["pending", "approved", "rejected"].includes(status)) {
+      return NextResponse.json({ error: "Statut invalide" }, { status: 400 })
+    }
+
+    const updated = await prisma.application.update({
+      where: { id },
+      data: { status },
     })
-    return NextResponse.json(applications)
+
+    return NextResponse.json(updated)
   } catch (error) {
-    console.error(error)
-    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
+    console.error("Erreur API PATCH /applications/:id", error)
+    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 })
   }
 }
