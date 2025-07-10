@@ -1,10 +1,10 @@
 {
+  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
+  "/admin/page": "app/admin/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/properties/page": "app/properties/page.js",
   "/admin/applications/page": "app/admin/applications/page.js",
   "/login/page": "app/login/page.js",
-  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
-  "/api/auth/register/route": "app/api/auth/register/route.js",
-  "/register/page": "app/register/page.js",
-  "/property/[id]/page": "app/property/[id]/page.js",
-  "/page": "app/page.js",
-  "/properties/page": "app/properties/page.js"
+  "/dashboard/tenant/page": "app/dashboard/tenant/page.js",
+  "/api/applications/route": "app/api/applications/route.js"
 }

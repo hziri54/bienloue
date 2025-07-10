@@ -1,24 +1,38 @@
-import { NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
+import { NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth/next'
+import { authOptions } from '../auth/[...nextauth]/route'
+import { PrismaClient } from '@prisma/client'
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+const prisma = new PrismaClient()
+
+export async function GET(request: Request) {
+  const session = await getServerSession(authOptions)
+  if (!session) {
+    return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+  }
+
   try {
-    const id = parseInt(params.id)
-    const { status } = await request.json()
-
-    // Valide le statut
-    if (!["pending", "approved", "rejected"].includes(status)) {
-      return NextResponse.json({ error: "Statut invalide" }, { status: 400 })
-    }
-
-    const updated = await prisma.application.update({
-      where: { id },
-      data: { status },
+    const userEmail = session.user.email
+    const user = await prisma.user.findUnique({
+      where: { email: userEmail },
     })
 
-    return NextResponse.json(updated)
+    if (!user) {
+      return NextResponse.json({ error: 'Utilisateur introuvable' }, { status: 404 })
+    }
+
+    // On récupère les candidatures liées à l'utilisateur, avec infos du bien
+    const applications = await prisma.application.findMany({
+      where: { userId: user.id },
+      include: {
+        property: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    })
+
+    return NextResponse.json(applications)
   } catch (error) {
-    console.error("Erreur API PATCH /applications/:id", error)
-    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 })
+    console.error(error)
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
 }
