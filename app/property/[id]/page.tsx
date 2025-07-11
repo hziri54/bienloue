@@ -1,9 +1,8 @@
-// app/property/[id]/page.tsx
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 import ApplyForm from "@/components/ApplyForm"
+import ImageCarousel from "@/components/ImageCarousel"
 import { PrismaClient } from "@prisma/client"
-import Image from "next/image"
 
 const prisma = new PrismaClient()
 
@@ -46,17 +45,7 @@ export default async function PropertyDetail({ params }: { params: { id: string 
       <h1 className="text-3xl font-bold mb-4">{property.title}</h1>
       <p className="mb-6">{property.description}</p>
 
-      <div className="grid grid-cols-2 gap-4 mb-6">
-        {images.length > 0 ? (
-          images.map((src, i) => (
-            <div key={i} className="relative w-full h-48 rounded overflow-hidden shadow">
-              <Image src={src} alt={`Photo ${i + 1}`} fill className="object-cover" />
-            </div>
-          ))
-        ) : (
-          <p>Aucune image disponible</p>
-        )}
-      </div>
+      <ImageCarousel images={images} alt={property.title} />
 
       {session ? (
         <ApplyForm propertyId={property.id} />

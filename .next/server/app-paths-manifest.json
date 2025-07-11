@@ -2,5 +2,14 @@
   "/not-found": "app/not-found.js",
   "/page": "app/page.js",
   "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
-  "/property/[id]/page": "app/property/[id]/page.js"
+  "/property/[id]/page": "app/property/[id]/page.js",
+  "/api/apply/route": "app/api/apply/route.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/dashboard/tenant/page": "app/dashboard/tenant/page.js",
+  "/api/applications/route": "app/api/applications/route.js",
+  "/login/page": "app/login/page.js",
+  "/properties/page": "app/properties/page.js",
+  "/admin/page": "app/admin/page.js",
+  "/admin/applications/page": "app/admin/applications/page.js",
+  "/api/admin/applications/[id]/route": "app/api/admin/applications/[id]/route.js"
 }
